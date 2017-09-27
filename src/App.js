@@ -115,6 +115,7 @@ class App extends Component {
     }
     firebase.database().ref("comments").push(newComment)
     .then(() => {console.log("Comment added")})
+    this.getComments(drinkId);
   }
   /*Function to display comment on a certain drink*/
   getComments = (idDrink) => {
