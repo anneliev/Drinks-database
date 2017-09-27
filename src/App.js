@@ -8,7 +8,6 @@ import NavButton from './components/buttons/navButton';
 import RegisterForm from './components/forms/registerForm';
 import SignInForm from './components/forms/signInForm';
 import CommentField from './components/forms/commentField';
-//import NoComments from './components/noComments';
 import googleLogo from './components/images/google-signin.png';
 
 class App extends Component {
@@ -167,7 +166,7 @@ class App extends Component {
 /*--------------------API calls based on filter criteria-------------------- */
   getRandomDrink = () => {
     this.setState({comments: []})
-     this.setState({currentUserComments: []})
+    this.setState({currentUserComments: []})
     this.setState({favorites: []})
     fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/random.php')
     .then(response => response.json())
@@ -257,16 +256,6 @@ class App extends Component {
 
   render() {
     const showDrinks = this.state.currentUserComments.length > 0 || this.state.favorites.length > 0;
-    //const showNoComments = this.state.currentUserComments.length === 0;
-    //const showNoFavorites = this.state.favorites.text === null;
-    //console.log(this.state.data);
-    //console.log(this.state.favorites);
-    //console.log(this.state.comments);
-    //console.log(this.state.user);
-    //console.log(this.state.currentUserComments);
-    //console.log(this.state.hasError);
-    //console.log(showNoComments);
-    //console.log(showNoFavorites);
 
 /* New array to hold and display the data depending on which API call was made */
     const list = [];
