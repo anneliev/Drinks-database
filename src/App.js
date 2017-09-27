@@ -165,7 +165,7 @@ class App extends Component {
 
 /*--------------------API calls based on filter criteria-------------------- */
   getRandomDrink = () => {
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/random.php')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/random.php')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -177,7 +177,7 @@ class App extends Component {
   getNonAcoholic = () => {
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/filter.php?a=Non_Alcoholic')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/filter.php?a=Non_Alcoholic')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -189,7 +189,7 @@ class App extends Component {
   getGin = () => {
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/filter.php?i=Gin')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/filter.php?i=Gin')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -201,7 +201,7 @@ class App extends Component {
   getCocktail = () => {
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/filter.php?c=Cocktail')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/filter.php?c=Cocktail')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -213,7 +213,7 @@ class App extends Component {
   getChampagne = () => {
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/filter.php?g=Champagne_flute')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/filter.php?g=Champagne_flute')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -225,7 +225,7 @@ class App extends Component {
   getVodka = () => {
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch('http://www.thecocktaildb.com/api/json/v1/8008/filter.php?i=Vodka')
+    fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/filter.php?i=Vodka')
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
@@ -241,7 +241,7 @@ class App extends Component {
     });
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
-    fetch(`http://www.thecocktaildb.com/api/json/v1/8008/lookup.php?i=${drinkId}`)
+    fetch(`https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/lookup.php?i=${drinkId}`)
     .then(response => response.json())
     .then(data => {
       this.setState({ data : data.drinks });
