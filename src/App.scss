@@ -24,8 +24,8 @@ body{
 }
 .App {
   text-align: center;
-  background-image: url("./components/images/drink-bg-med.jpg");
-  height: 50em;
+  background-image: url("./components/images/lime-bg.jpg");
+  height: 70em;
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
@@ -34,7 +34,7 @@ body{
   flex-direction: column;
 }
 .container-fluid{
-  background-image: url("./components/images/drink-bg-med.jpg");
+  background-image: url("./components/images/lime-bg.jpg");
   height: 4000em;
   background-attachment: fixed;
   background-position: center;
@@ -57,9 +57,9 @@ body{
   flex-direction: column;
 }
 .jumbotron{
-  background-color: #abef81;
-  color:white;
-  text-shadow: 1px 1px darkslategrey;
+  background-image: url("./components/images/jumbo-bg-sm.jpg");
+  color: #2F4F4F;
+  text-shadow: 1px 1px #FFF;
 }
 
 .content{
@@ -84,10 +84,16 @@ body{
   font-size: 2em;
   font-weight: 700;
 }
+.searchText{
+  color: #2F4F4F;
+  text-shadow: 1px 1px #FFF;
+}
 div{
   font-family: muli;
 }
 h1, h2, h3, h4, h5, h6{
   font-family: philosopher;
 }
-
+a{
+  color: #000;
+}

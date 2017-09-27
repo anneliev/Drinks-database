@@ -165,6 +165,9 @@ class App extends Component {
 
 /*--------------------API calls based on filter criteria-------------------- */
   getRandomDrink = () => {
+    this.setState({comments: []})
+     this.setState({currentUserComments: []})
+    this.setState({favorites: []})
     fetch('https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/random.php')
     .then(response => response.json())
     .then(data => {
@@ -287,7 +290,7 @@ class App extends Component {
               <p className="card-text">{this.state.data[i].strInstructions}</p>
               {!this.state.data[i].strIngredient1 && <button className="btn btn-warning m-3" onClick={ () => this.getRecipeAndComments(this.state.data[i].idDrink)}>Recipe and Comments</button>}
               <button className="btn btn-outline-warning" onClick={ () => this.addFavorite(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)}>Add to favorites</button>
-              {this.state.data[i].strIngredient1 && <button className="btn btn-primary" onClick={ () => {this.getComments(this.state.data[i].idDrink)}}>Get comments</button>}
+              {this.state.data[i].strIngredient1 && <button className="btn btn-outline-success" onClick={ () => {this.getComments(this.state.data[i].idDrink)}}>Get comments</button>}
               <br />
               {this.state.data[i].strIngredient1 && 
                 <div>
@@ -349,13 +352,13 @@ class App extends Component {
     return (
       <div className="App">
         <Header>
-          The Drink Database
+          Drink Database
         </Header>
 {/*If no user is signed in, the form will be displayed */}
         {!this.state.user &&
           <main className="container">
             <h1>Welcome</h1>
-            <h4>Please Register or Sign in</h4>
+            <h3>Please Register or Sign in</h3>
             <br />
 {/*If there is an error when user is registring or signing in, an error message will show*/}
             {this.state.hasError ? <div className="errorHandling"><p>{this.state.error}</p></div> : ''}
@@ -376,6 +379,8 @@ As well as a random drink and buttons to filter and search for more drinks.
               <NavButton onClick={ () => {this.getUserComments(this.state.user.userId)}}>My Comments</NavButton>
               <NavButton onClick={this.signOut}>SignOut</NavButton>
             </Navbar>
+            <br />
+            <h3 className="searchText">Search the database for different drinks by pressing a button</h3>
             <nav className="navbar navbar-inverse navbar-fixed-top justify-content-center">
                 <FilterButton onClick={this.getNonAcoholic}>No alcohol</FilterButton>
                 <FilterButton onClick={this.getGin}>Gin</FilterButton>
