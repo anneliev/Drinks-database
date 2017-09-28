@@ -24,9 +24,8 @@ class App extends Component {
     hasError: false
   }
 
-
   componentDidMount() {
-    /*Updates state when user is signed in*/
+/*Updates state when firebase authenticaion status changes.*/
     firebase.auth().onAuthStateChanged((user) => {
       if(user){
         const newUser = {
@@ -37,8 +36,8 @@ class App extends Component {
         this.setState({ user : newUser })
         console.log(user);
       }else{
-        console.log("Error. Not logged in");
         this.setState({ user : ''})
+        console.log("Error. Not logged in");
       }
     })
     /*Displays a random drink when user is signed in*/
@@ -51,7 +50,10 @@ class App extends Component {
   }
 
 /*--------------------Sign in/sign out-------------------- */
-/*Function to create a new user, with email and password, in firebase authentication and realtime database. Get values from form*/
+
+/*Function to create a new user, with email and password, in firebase authentication and realtime database. Get values from registerForm.
+If the creation of new user is successfull a call to function getRandomDrink is made, which will display a drink.
+If not successfull, an error message will be displayed. */
   onSubmit = () => {
     firebase.auth().createUserWithEmailAndPassword(this.state.usermail, this.state.password)
     .then ((user) => {
@@ -65,7 +67,7 @@ class App extends Component {
       console.log(error)
     })
   }
-/*Function to sign in with existing user created with email and password*/
+/*Function to sign in with existing user created with email and password. Same as create user if success or fail.*/
   signIn = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.usermail, this.state.password)
     .then(user => console.log("User signed in", user))
@@ -82,27 +84,30 @@ class App extends Component {
       console.log(error)
     })
   }
-/*Function to sign in using a Google account*/
+/*Function to sign in using a Google account. Same as create user if success or fail.*/
   signInWithGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider).then((result)=> {
     const user = result.user;
     firebase.database().ref(`users/${user.uid}`).set({ email: user.email, uid: user.uid})
+    .then(user => this.getRandomDrink())
     }).catch(error => {
       this.setState({hasError: true})
       this.setState({error: error.message})
       console.log(error)
     })
   }
-/*Sign out*/
+/*Signs out the current user from firebase authentication*/
   signOut = () => {
     firebase.auth().signOut();
     console.log("Signed out successfully")
   }
 
   /*--------------------Handling comments-------------------- */
+
  /*Function to add a comment in firebase database.
- It will store the id, name and picture of the drink, the comment string and the id and mail adress of the current user */ 
+ It will store the id, name and picture of the drink, the comment string and the id and mail adress of the current user.
+ Then calls a function to display the comments on the current drink.*/ 
   addComment = (drinkId, drinkName, drinkThumb) => {
     const newComment = {
       text: this.state.newComment,
@@ -114,16 +119,34 @@ class App extends Component {
     }
     firebase.database().ref("comments").push(newComment)
     .then(() => {console.log("Comment added")})
-    this.getComments(drinkId);
+    this.setState({newComment: ''})
+    firebase.database().ref("comments").orderByChild("drinkId").equalTo(drinkId).limitToLast(3).on('child_added', (snapshot) => {
+      const commentsArray = [...this.state.comments];
+      const comment = {
+        key: snapshot.key,
+        value: snapshot.val()
+      }
+      commentsArray.push(comment);
+      this.setState({ comments: commentsArray.reverse() });
+    });
+
   }
-  /*Function to display comment on a certain drink*/
+  /*Function to display comment on a certain drink. 
+  Get the data from firebase realtime database and updates state.*/
   getComments = (idDrink) => {
     firebase.database().ref("comments").orderByChild("drinkId").equalTo(idDrink).limitToLast(3).on('value', (snapshot) => {
       const commentsArray = toArray(snapshot.val())
-      this.setState({ comments: commentsArray });
+      this.setState({ comments: commentsArray.reverse() });
     });
   }
-  /*Function to display all comment made by the current user*/
+  getAllComments = (idDrink) => {
+    firebase.database().ref("comments").orderByChild("drinkId").equalTo(idDrink).on('value', (snapshot) => {
+      const commentsArray = toArray(snapshot.val())
+      this.setState({ comments: commentsArray.reverse() });
+    });
+  }
+  /*Function to display all comment made by the current user.
+  Get the data from firebase realtime database and updates state*/
   getUserComments = (userId) => {
     this.setState({favorites: []})
     firebase.database().ref("comments").orderByChild("userId").equalTo(userId).on('value', (snapshot) => {
@@ -138,6 +161,7 @@ class App extends Component {
   }
 
 /*--------------------Handling favorites-------------------- */
+
  /*Function to add a drink to favorites in firebase database.
  It will store the id, name and picture of the drink as well as the id of the logged in user. */ 
  addFavorite = (drinkId, drinkName, drinkThumb) => {
@@ -150,7 +174,7 @@ class App extends Component {
   firebase.database().ref("favorites").push(newFavorite)
   .then(() => {console.log("Favorite added")})
  }
-/*Function to get the favorites matching the current user from firebase database and display them*/
+/*Function to get the favorites matching the current user from firebase database, updates state and displays them*/
  getFavorites = (userId) => {
   this.setState({currentUserComments: []})
   firebase.database().ref("favorites").orderByChild("userId").equalTo(userId).on('value', (snapshot) => {
@@ -158,12 +182,16 @@ class App extends Component {
       this.setState({ favorites: favoritesArray });
     });
  }
- /*Function to remove a favorite from the database*/
+ /*Function to remove a favorite from the database, with the userid matching current user.*/
  removeFavorite = (key) => {
   firebase.database().ref(`favorites/${key}`).remove();
  }
 
 /*--------------------API calls based on filter criteria-------------------- */
+/*All functions updates state first, setting comments, currentUserComments and favorites to empty arrays. 
+Otherwise the chosen drink/drinks wouldn't be shown.
+Based on what button the user presses, an API call will be made to the CocktailDB API, state is updated and a list displayed.
+One function takes an argument to get a specific drink with more info*/
   getRandomDrink = () => {
     this.setState({comments: []})
     this.setState({currentUserComments: []})
@@ -255,6 +283,8 @@ class App extends Component {
   }
 
   render() {
+
+/*Variable to hold a true or false bool. Used to check what should be displayed*/
     const showDrinks = this.state.currentUserComments.length > 0 || this.state.favorites.length > 0;
 
 /* New array to hold and display the data depending on which API call was made */
@@ -278,22 +308,30 @@ class App extends Component {
                 {this.state.data[i].strIngredient10 && <li>{this.state.data[i].strIngredient10} - {this.state.data[i].strMeasur10}</li> }
               </ul> 
               <p className="card-text">{this.state.data[i].strInstructions}</p>
+{/*If no ingredient is displayed, a button 'get recipe and comments' shows. when clicked on calls function to show more info about the drink*/}
               {!this.state.data[i].strIngredient1 && <button className="btn btn-warning m-3" onClick={ () => this.getRecipeAndComments(this.state.data[i].idDrink)}>Recipe and Comments</button>}
               <button className="btn btn-outline-warning" onClick={ () => this.addFavorite(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)}>Add to favorites</button>
-              {this.state.data[i].strIngredient1 && <button className="btn btn-outline-success" onClick={ () => {this.getComments(this.state.data[i].idDrink)}}>Get comments</button>}
+{/*If ingreidient is displayed, a 'get comments' buttons shows. calls function to get comments on the drink from database */}
               <br />
               {this.state.data[i].strIngredient1 && 
                 <div>
+                <button className="btn btn-outline-success" onClick={ () => {this.getComments(this.state.data[i].idDrink)}}>Get comments</button>
                   {this.state.comments.length > 0 && 
                     <div>
                       <p>{this.state.comments[0].value.text} <i> - by: {this.state.comments[0].value.createdBy}</i></p>
                       {this.state.comments[1] && <p>{this.state.comments[1].value.text} <i> - by: {this.state.comments[1].value.createdBy}</i></p>}
                       {this.state.comments[2] && <p>{this.state.comments[2].value.text} <i> - by: {this.state.comments[2].value.createdBy}</i></p>}
+                      {this.state.comments[2] && <button className="btn btn-outline-success" onClick={ () => {this.getAllComments(this.state.data[i].idDrink)}}>More comments</button>}
+                      {this.state.comments[3] && <p>{this.state.comments[3].value.text} <i> - by: {this.state.comments[3].value.createdBy}</i></p>}
+                      {this.state.comments[4] && <p>{this.state.comments[4].value.text} <i> - by: {this.state.comments[4].value.createdBy}</i></p>}
+                      {this.state.comments[5] && <p>{this.state.comments[5].value.text} <i> - by: {this.state.comments[5].value.createdBy}</i></p>}
+                      {this.state.comments[6] && <p>{this.state.comments[6].value.text} <i> - by: {this.state.comments[6].value.createdBy}</i></p>}
+                      {this.state.comments[7] && <p>{this.state.comments[7].value.text} <i> - by: {this.state.comments[7].value.createdBy}</i></p>}
                     </div>
                   }
                 </div>
               }
-              <CommentField onChange={this.onChange} onSubmit={ () => this.addComment(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)} value={this.state.value} />
+              <CommentField onChange={this.onChange} onSubmit={ () => this.addComment(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)} newComment={this.state.newComment} />
               <br />
             </div>
           </div>  
@@ -302,13 +340,6 @@ class App extends Component {
 /*New array to hold and display current users comments*/
     const userComments = [];
     for(let i = 0; i < this.state.currentUserComments.length; i++){
-      if(this.state.currentUserComments[0].text === null){
-        userComments.push(
-            <div>
-          <p>No comments yet</p>
-          </div>
-          )
-      } else{
       userComments.push(
           <div className="card" key={i}>
           <h4 className="card-title">You have commented on</h4>
@@ -320,7 +351,7 @@ class App extends Component {
               <button className="btn btn-outline-danger" onClick={ () => {this.removeComment(this.state.currentUserComments[i].key)}}>Remove comment</button>
             </div>
           </div>
-      );}
+      );
     }
 /*New array to hold and display current users favorites*/
     const userFavorites = [];
@@ -347,7 +378,9 @@ class App extends Component {
 {/*If no user is signed in, the form will be displayed */}
         {!this.state.user &&
           <main className="container">
-            <h1>Welcome</h1>
+            <h1>Welcome to Drink Database</h1>
+            <h4>Where you can find an abundance of yummy drinks</h4>
+            <br />
             <h3>Please Register or Sign in</h3>
             <br />
 {/*If there is an error when user is registring or signing in, an error message will show*/}
@@ -370,7 +403,7 @@ As well as a random drink and buttons to filter and search for more drinks.
               <NavButton onClick={this.signOut}>SignOut</NavButton>
             </Navbar>
             <br />
-            <h3 className="searchText">Search the database for different drinks by pressing a button</h3>
+            <h5 className="searchText">Search the database for different drinks by pressing a button</h5>
             <nav className="navbar navbar-inverse navbar-fixed-top justify-content-center">
                 <FilterButton onClick={this.getNonAcoholic}>No alcohol</FilterButton>
                 <FilterButton onClick={this.getGin}>Gin</FilterButton>
@@ -381,8 +414,11 @@ As well as a random drink and buttons to filter and search for more drinks.
               </nav>
             <div className="row">
               <a className="navbar-brand" href="#"></a>
+{/*If there are user comments in state, those will show and no other drinks*/}
               {this.state.currentUserComments && userComments} 
+{/*If there are favorites in state, those will be displayed and no other drinks*/}
               {this.state.favorites > 0 && userFavorites}
+{/*If no user comments or favorites are in state, the filtered drink/drinks will be displayed*/}
               {!showDrinks && list} 
             </div> 
             <p className="float-right"><a href="#">Back to top</a></p>

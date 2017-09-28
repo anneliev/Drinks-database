@@ -8,6 +8,7 @@ class SignInForm extends Component {
   render (){
     return(
       <div className="col-md-4 signInForm">
+      <h4>Sign In</h4>
         <form onSubmit={this.signIn}>
           <div className="form-group">
             <label htmlFor="usermail">

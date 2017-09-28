@@ -2,7 +2,7 @@ import React from 'react';
 
 function FilterButton(props) {
 	return (
-		<button className="btn btn-info m-3" onClick={props.onClick}> 
+		<button className="btn btn-info filterButton" onClick={props.onClick}> 
 			 {props.children}
 		</button> 
 	)

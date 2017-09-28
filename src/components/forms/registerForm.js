@@ -7,7 +7,8 @@ class RegisterForm extends Component{
   }
   render (){
     return(
-      <div className="col-md-4">
+      <div className="col-md-4 registerForm">
+      <h4>Register</h4>
         <form onSubmit={this.signUp}>
           <div className="form-group">
             <label htmlFor="usermail">
