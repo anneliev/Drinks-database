@@ -24,7 +24,7 @@ body{
 }
 .App {
   text-align: center;
-  background-image: url("./components/images/lime-bg.jpg");
+  background-image: url("./components/images/lime-bg-sm.jpg");
   height: 70em;
   background-attachment: fixed;
   background-position: center;
@@ -34,13 +34,14 @@ body{
   flex-direction: column;
 }
 .container-fluid{
-  background-image: url("./components/images/lime-bg.jpg");
+  background-image: url("./components/images/lime-bg-sm.jpg");
   height: 4000em;
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
+
 .card{
   margin: 2em;
   padding: 0.5em;
@@ -89,7 +90,7 @@ body{
   font-size: 0.8em;
 }
 .btn-outline-warning{
-  
+
 }
 .signInForm,
 .registerForm{
@@ -111,6 +112,7 @@ a{
     font-size: 0.9em;
   }
   .jumbotron{
+    background-image: url("./components/images/jumbo-bg-med.jpg");
     h1{
       font-size: 6em;
     }
@@ -128,6 +130,7 @@ a{
     font-size: 1em;
   }
   .jumbotron{
+    background-image: url("./components/images/jumbo-bg-lg.jpg");
     h1{
       font-size: 7em;
     }

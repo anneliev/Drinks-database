@@ -21,7 +21,7 @@ body {
 
 .App {
   text-align: center;
-  background-image: url("./components/images/lime-bg.jpg");
+  background-image: url("./components/images/lime-bg-sm.jpg");
   height: 70em;
   background-attachment: fixed;
   background-position: center;
@@ -31,7 +31,7 @@ body {
   flex-direction: column; }
 
 .container-fluid {
-  background-image: url("./components/images/lime-bg.jpg");
+  background-image: url("./components/images/lime-bg-sm.jpg");
   height: 4000em;
   background-attachment: fixed;
   background-position: center;
@@ -98,8 +98,10 @@ a {
 @media screen and (min-width: 427px) and (max-width: 768px) {
   .card {
     font-size: 0.9em; }
-  .jumbotron h1 {
-    font-size: 6em; }
+  .jumbotron {
+    background-image: url("./components/images/jumbo-bg-med.jpg"); }
+    .jumbotron h1 {
+      font-size: 6em; }
   .btn {
     font-size: 1em; }
   .searchText {
@@ -108,8 +110,10 @@ a {
 @media screen and (min-width: 769px) {
   .card {
     font-size: 1em; }
-  .jumbotron h1 {
-    font-size: 7em; }
+  .jumbotron {
+    background-image: url("./components/images/jumbo-bg-lg.jpg"); }
+    .jumbotron h1 {
+      font-size: 7em; }
   .btn {
     font-size: 1.1em; }
   .searchText {
