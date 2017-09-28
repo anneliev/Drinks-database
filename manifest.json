@@ -1,6 +1,6 @@
 {
-  "short_name": "Drinks",
-  "name": "The Drink Database",
+  "short_name": "Drink db",
+  "name": "Drink Database",
   "icons": [
     {
       "src": "favicon-128x128.png",
