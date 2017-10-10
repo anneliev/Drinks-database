@@ -34,10 +34,8 @@ class App extends Component {
           userId: user.uid
         }
         this.setState({ user : newUser })
-        console.log(user);
       }else{
         this.setState({ user : ''})
-        console.log("Error. Not logged in");
       }
     })
     /*Displays a random drink when user is signed in*/
@@ -59,18 +57,15 @@ If not successfull, an error message will be displayed. */
     .then ((user) => {
       firebase.database().ref(`users/${user.uid}`).set({ email: user.email, uid: user.uid})
     })
-    .then(user => console.log("User created ", user))
     .then(user => this.getRandomDrink())
     .catch(error => {
       this.setState({hasError: true})
       this.setState({error: error.message})
-      console.log(error)
     })
   }
 /*Function to sign in with existing user created with email and password. Same as create user if success or fail.*/
   signIn = () => {
     firebase.auth().signInWithEmailAndPassword(this.state.usermail, this.state.password)
-    .then(user => console.log("User signed in", user))
     .then(user => this.getRandomDrink())
     .catch(error => {
       this.setState({hasError: true})
@@ -81,7 +76,6 @@ If not successfull, an error message will be displayed. */
       }else{
         this.setState({error: error.message})
       }
-      console.log(error)
     })
   }
 /*Function to sign in using a Google account. Same as create user if success or fail.*/
@@ -94,13 +88,11 @@ If not successfull, an error message will be displayed. */
     }).catch(error => {
       this.setState({hasError: true})
       this.setState({error: error.message})
-      console.log(error)
     })
   }
 /*Signs out the current user from firebase authentication*/
   signOut = () => {
     firebase.auth().signOut();
-    console.log("Signed out successfully")
   }
 
   /*--------------------Handling comments-------------------- */
@@ -118,7 +110,6 @@ If not successfull, an error message will be displayed. */
       drinkThumb: drinkThumb
     }
     firebase.database().ref("comments").push(newComment)
-    .then(() => {console.log("Comment added")})
     this.setState({newComment: ''})
     firebase.database().ref("comments").orderByChild("drinkId").equalTo(drinkId).limitToLast(3).on('child_added', (snapshot) => {
       const commentsArray = [...this.state.comments];
@@ -148,6 +139,7 @@ If not successfull, an error message will be displayed. */
   /*Function to display all comment made by the current user.
   Get the data from firebase realtime database and updates state*/
   getUserComments = (userId) => {
+    this.setState({comments:[]})
     this.setState({favorites: []})
     firebase.database().ref("comments").orderByChild("userId").equalTo(userId).on('value', (snapshot) => {
       const commentsArray = toArray(snapshot.val())
@@ -164,15 +156,31 @@ If not successfull, an error message will be displayed. */
 
  /*Function to add a drink to favorites in firebase database.
  It will store the id, name and picture of the drink as well as the id of the logged in user. */ 
- addFavorite = (drinkId, drinkName, drinkThumb) => {
-  const newFavorite = {
-    drinkName: drinkName,
-    drinkId: drinkId,
-    drinkThumb: drinkThumb,
-    userId: this.state.user.userId
-  }
-  firebase.database().ref("favorites").push(newFavorite)
-  .then(() => {console.log("Favorite added")})
+ addFavorite = (drinkId, drinkName, drinkThumb, userId) => {
+   firebase.database().ref("favorites").orderByChild("userId").equalTo(userId).on('value', (snapshot) => {
+      const favoritesArray = toArray(snapshot.val())
+      this.setState({ favorites: favoritesArray })
+   
+      let addFav = () => {
+        const newFavorite = {
+          drinkName: drinkName,
+          drinkId: drinkId,
+          drinkThumb: drinkThumb,
+          userId: this.state.user.userId
+        }
+/*New array with the drinkIds from favorites database, the ones added by current user, to compare with the drinkId of favorite to be added. 
+If it doesn't exist, new favorite will be added*/
+        let currentFavs = [];
+        for(let i = 0; i < favoritesArray.length; i ++){
+          currentFavs.push(favoritesArray[i].value.drinkId);
+        }
+        if(!currentFavs.includes(newFavorite.drinkId)){
+          firebase.database().ref("favorites").push(newFavorite)
+          .then(() => {currentFavs.push(newFavorite.drinkId)})
+        }
+      }
+    addFav();
+    })
  }
 /*Function to get the favorites matching the current user from firebase database, updates state and displays them*/
  getFavorites = (userId) => {
@@ -266,10 +274,8 @@ One function takes an argument to get a specific drink with more info*/
     }) 
   }
   getRecipeAndComments = (drinkId) => {
-    firebase.database().ref("comments").orderByChild("drinkId").equalTo(drinkId).limitToLast(3).on('child_changed', (snapshot) => {
-      const commentsArray = toArray(snapshot.val())
-      this.setState({ comments: commentsArray });
-    });
+    this.getComments(drinkId)
+    
     this.setState({currentUserComments: []})
     this.setState({favorites: []})
     fetch(`https://cors-anywhere.herokuapp.com/http://www.thecocktaildb.com/api/json/v1/8008/lookup.php?i=${drinkId}`)
@@ -310,12 +316,13 @@ One function takes an argument to get a specific drink with more info*/
               <p className="card-text">{this.state.data[i].strInstructions}</p>
 {/*If no ingredient is displayed, a button 'get recipe and comments' shows. when clicked on calls function to show more info about the drink*/}
               {!this.state.data[i].strIngredient1 && <button className="btn btn-warning m-3" onClick={ () => this.getRecipeAndComments(this.state.data[i].idDrink)}>Recipe and Comments</button>}
-              <button className="btn btn-outline-warning" onClick={ () => this.addFavorite(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)}>Add to favorites</button>
+              <button className="btn btn-outline-warning" onClick={ () => this.addFavorite(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb, this.state.user.userId)}>Add to favorites</button>
 {/*If ingreidient is displayed, a 'get comments' buttons shows. calls function to get comments on the drink from database */}
               <br />
               {this.state.data[i].strIngredient1 && 
                 <div>
-                <button className="btn btn-outline-success" onClick={ () => {this.getComments(this.state.data[i].idDrink)}}>Get comments</button>
+                <CommentField onChange={this.onChange} onSubmit={ () => this.addComment(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)} newComment={this.state.newComment} />
+
                   {this.state.comments.length > 0 && 
                     <div>
                       <p>{this.state.comments[0].value.text} <i> - by: {this.state.comments[0].value.createdBy}</i></p>
@@ -331,7 +338,6 @@ One function takes an argument to get a specific drink with more info*/
                   }
                 </div>
               }
-              <CommentField onChange={this.onChange} onSubmit={ () => this.addComment(this.state.data[i].idDrink, this.state.data[i].strDrink, this.state.data[i].strDrinkThumb)} newComment={this.state.newComment} />
               <br />
             </div>
           </div>  
