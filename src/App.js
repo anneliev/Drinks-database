@@ -109,9 +109,11 @@ If not successfull, an error message will be displayed. */
       drinkName : drinkName,
       drinkThumb: drinkThumb
     }
-    firebase.database().ref("comments").push(newComment)
-    this.setState({newComment: ''})
-    firebase.database().ref("comments").orderByChild("drinkId").equalTo(drinkId).limitToLast(3).on('child_added', (snapshot) => {
+    if(newComment.text !== ""){
+      firebase.database().ref("comments").push(newComment)
+      this.setState({newComment: ''})
+      
+      firebase.database().ref("comments").orderByChild("drinkId").equalTo(drinkId).limitToLast(3).on('child_added', (snapshot) => {
       const commentsArray = [...this.state.comments];
       const comment = {
         key: snapshot.key,
@@ -121,6 +123,7 @@ If not successfull, an error message will be displayed. */
       this.setState({ comments: commentsArray.reverse() });
     });
 
+    }
   }
   /*Function to display comment on a certain drink. 
   Get the data from firebase realtime database and updates state.*/
